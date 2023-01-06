@@ -1,0 +1,34 @@
+services:
+    GeekCell\KafkaBundle\EventSubscriber\KafkaSubscriber:
+        arguments:
+            - '@GeekCell\KafkaBundle\Serializer\GenericEventSerializer'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    GeekCell\KafkaBundle\Serializer\GenericEventSerializer:
+        factory:
+            - '@GeekCell\KafkaBundle\Serializer\Factory\GenericEventSerializerFactory'
+            - create
+
+    GeekCell\KafkaBundle\Serializer\RecordSerializer:
+        factory:
+            - '@GeekCell\KafkaBundle\Serializer\Factory\RecordSerializerFactory'
+            - create
+
+    GeekCell\KafkaBundle\Serializer\Factory\GenericEventSerializerFactory:
+        arguments:
+            - '@FlixTech\AvroSerializer\Objects\RecordSerializer'
+            - '@GeekCell\KafkaBundle\Serializer\RecordSerializer'
+
+    GeekCell\KafkaBundle\Serializer\Factory\RecordSerializerFactory:
+        arguments:
+            - '@FlixTech\AvroSerializer\Objects\RecordSerializer'
+
+    FlixTech\AvroSerializer\Objects\RecordSerializer:
+        factory:
+            - '@FlixTech\AvroSerializer\Objects\DefaultRecordSerializerFactory'
+            - get
+        arguments:
+            - 'http://localhost:8085'
+
+    FlixTech\AvroSerializer\Objects\DefaultRecordSerializerFactory: ~
