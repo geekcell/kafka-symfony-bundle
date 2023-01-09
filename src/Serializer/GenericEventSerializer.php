@@ -13,11 +13,21 @@ use Symfony\Component\Serializer\Serializer as SymfonySerializer;
 
 class GenericEventSerializer extends Serializer
 {
+    private SymfonySerializer $innerSerializer;
+
+    private RecordSerializer $recordSerializer;
+
     public function __construct(
-        private SymfonySerializer $innerSerializer,
-        private RecordSerializer $recordSerializer,
-        private AvroUtil $avroUtil,
-    ) {}
+        SymfonySerializer $innerSerializer,
+        RecordSerializer $recordSerializer,
+        AvroUtil $avroUtil,
+        array $defaults = [],
+    ) {
+        parent::__construct($avroUtil, $defaults);
+
+        $this->innerSerializer = $innerSerializer;
+        $this->recordSerializer = $recordSerializer;
+    }
 
     protected function doSerialize(Record $object): string
     {
@@ -30,7 +40,7 @@ class GenericEventSerializer extends Serializer
             );
         }
 
-        $schema = $object->getSchema();
+        $schema = $this->fixNamespace($object->getSchema());
         if (!$this->avroUtil->hasName($object->getSchema())) {
             throw new \LogicException(
                 sprintf(

@@ -47,6 +47,11 @@ class GeekCellKafkaExtension extends Extension
             'geek_cell_kafka.avro.schema_registry_url',
             $avroConfig['schema_registry_url'],
         );
+
+        $container->setParameter(
+            'geek_cell_kafka.avro.schemas.defaults',
+            $avroConfig['schemas']['defaults'],
+        );
     }
 
     private function registerKafkaEventsForSubscriber(

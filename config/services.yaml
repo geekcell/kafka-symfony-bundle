@@ -30,6 +30,7 @@ services:
             - '@FlixTech\AvroSerializer\Objects\RecordSerializer'
             - '@GeekCell\KafkaBundle\Serializer\RecordSerializer'
             - '@GeekCell\KafkaBundle\Util\AvroUtil'
+            - '%geek_cell_kafka.avro.schemas.defaults%'
         tags:
             - { name: geek_cell_kafka.serializer_factory }
         public: false
@@ -38,6 +39,7 @@ services:
         arguments:
             - '@FlixTech\AvroSerializer\Objects\RecordSerializer'
             - '@GeekCell\KafkaBundle\Util\AvroUtil'
+            - '%geek_cell_kafka.avro.schemas.defaults%'
         tags:
             - { name: geek_cell_kafka.serializer_factory }
         public: false

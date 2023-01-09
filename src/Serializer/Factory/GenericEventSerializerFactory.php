@@ -20,6 +20,7 @@ class GenericEventSerializerFactory implements SerializerFactory
         private AvroRecordSerializer $avroRecordSerializer,
         private RecordSerializer $recordSerializer,
         private AvroUtil $avroUtil,
+        private array $defaults = [],
     ) {}
 
     public function create(): Serializer
@@ -32,6 +33,7 @@ class GenericEventSerializerFactory implements SerializerFactory
             $innerSerializer,
             $this->recordSerializer,
             $this->avroUtil,
+            $this->defaults,
         );
     }
 }

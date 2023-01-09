@@ -12,10 +12,17 @@ use Symfony\Component\Serializer\Serializer as SymfonySerializer;
 
 class RecordSerializer extends Serializer
 {
+    private SymfonySerializer $innerSerializer;
+
     public function __construct(
-        private SymfonySerializer $innerSerializer,
-        private AvroUtil $avroUtil,
-    ) {}
+        SymfonySerializer $innerSerializer,
+        AvroUtil $avroUtil,
+        array $defaults = [],
+    ) {
+        parent::__construct($avroUtil, $defaults);
+
+        $this->innerSerializer = $innerSerializer;
+    }
 
     protected function doSerialize(Serializable $object): string
     {
@@ -29,7 +36,7 @@ class RecordSerializer extends Serializer
             );
         }
 
-        $schema = $object->getSchema();
+        $schema = $this->fixNamespace($object->getSchema());
         if (!$this->avroUtil->hasName($schema)) {
             throw new \LogicException(
                 sprintf(

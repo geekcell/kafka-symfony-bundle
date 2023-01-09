@@ -5,62 +5,30 @@ declare(strict_types=1);
 namespace GeekCell\KafkaBundle\Util;
 
 use FlixTech\AvroSerializer\Objects\Schema;
+use FlixTech\AvroSerializer\Objects\Schema\RecordType;
 
 class AvroUtil
 {
-    public function isRecord(Schema $schema): bool
+    public function getNamespace(Schema $schema): ?string
     {
-        $type = \AvroUtil::array_value(
-            $schema->serialize(),
-            \AvroSchema::TYPE_ATTR,
-        );
+        if (!$schema instanceof RecordType) {
+            return null;
+        }
 
-        return $type === \AvroSchema::RECORD_SCHEMA;
+        return \AvroUtil::array_value(
+            $schema->serialize(),
+            \AvroSchema::NAMESPACE_ATTR,
+        );
     }
 
     public function hasNamespace(Schema $schema): bool
     {
-        if (!$this->isRecord($schema)) {
-            return false;
-        }
-
-        $namespace = \AvroUtil::array_value(
-            $schema->serialize(),
-            \AvroSchema::NAMESPACE_ATTR,
-        );
-
-        return $namespace !== null;
-    }
-
-    public function hasName(Schema $schema): bool
-    {
-        if (!$this->isRecord($schema)) {
-            return false;
-        }
-
-        $name = \AvroUtil::array_value(
-            $schema->serialize(),
-            \AvroSchema::NAME_ATTR,
-        );
-
-        return $name !== null;
-    }
-
-    public function getNamespace(Schema $schema): ?string
-    {
-        if (!$this->isRecord($schema)) {
-            return null;
-        }
-
-        return \AvroUtil::array_value(
-            $schema->serialize(),
-            \AvroSchema::NAMESPACE_ATTR,
-        );
+        return $this->getNamespace($schema) !== null;
     }
 
     public function getName(Schema $schema): ?string
     {
-        if (!$this->isRecord($schema)) {
+        if (!$schema instanceof RecordType) {
             return null;
         }
 
@@ -68,5 +36,10 @@ class AvroUtil
             $schema->serialize(),
             \AvroSchema::NAME_ATTR,
         );
+    }
+
+    public function hasName(Schema $schema): bool
+    {
+        return $this->getName($schema) !== null;
     }
 }

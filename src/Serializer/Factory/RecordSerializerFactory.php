@@ -18,6 +18,7 @@ class RecordSerializerFactory implements SerializerFactory
     public function __construct(
         private AvroRecordSerializer $recordSerializer,
         private AvroUtil $avroUtil,
+        private array $defaults = [],
     ) {}
 
     public function create(): Serializer
@@ -26,6 +27,10 @@ class RecordSerializerFactory implements SerializerFactory
         $encoder = new AvroSerDeEncoder($this->recordSerializer);
         $innerSerializer = new SymfonySerializer([$normalizer], [$encoder]);
 
-        return new RecordSerializer($innerSerializer, $this->avroUtil);
+        return new RecordSerializer(
+            $innerSerializer,
+            $this->avroUtil,
+            $this->defaults,
+        );
     }
 }
