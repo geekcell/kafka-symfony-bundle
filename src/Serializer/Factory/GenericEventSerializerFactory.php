@@ -21,7 +21,8 @@ class GenericEventSerializerFactory implements SerializerFactory
         private RecordSerializer $recordSerializer,
         private AvroUtil $avroUtil,
         private array $defaults = [],
-    ) {}
+    ) {
+    }
 
     public function create(): Serializer
     {

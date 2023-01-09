@@ -41,8 +41,7 @@ class GeekCellKafkaExtension extends Extension
     private function registerAvroConfiguration(
         array $avroConfig,
         ContainerBuilder $container,
-    ): void
-    {
+    ): void {
         $container->setParameter(
             'geek_cell_kafka.avro.schema_registry_url',
             $avroConfig['schema_registry_url'],
@@ -57,8 +56,7 @@ class GeekCellKafkaExtension extends Extension
     private function registerKafkaEventsForSubscriber(
         array $eventConfig,
         ContainerBuilder $container,
-    ): void
-    {
+    ): void {
         $subscriberClass = KafkaSubscriber::class;
 
         $globs = array_map(function ($resource) use ($container) {
@@ -100,8 +98,7 @@ class GeekCellKafkaExtension extends Extension
     private function registerKafkaConfiguration(
         array $kafkaConfig,
         ContainerBuilder $container,
-    ): void
-    {
+    ): void {
         // RdKafka configuration
         $rdKafkaConfDefinition = new Definition(\RdKafka\Conf::class);
         $container->setDefinition(\RdKafka\Conf::class, $rdKafkaConfDefinition);
@@ -130,7 +127,7 @@ class GeekCellKafkaExtension extends Extension
 
         // See: https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings
         if (function_exists('pcntl_sigprocmask')) {
-            pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
+            pcntl_sigprocmask(SIG_BLOCK, [SIGIO]);
             $rdKafkaConfDefinition->addMethodCall(
                 'set',
                 ['internal.termination.signal', SIGIO],

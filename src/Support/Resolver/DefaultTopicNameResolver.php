@@ -14,7 +14,8 @@ class DefaultTopicNameResolver implements TopicNameResolver
     public function __construct(
         private string $prefix = '',
         private string $suffix = '',
-    ) {}
+    ) {
+    }
 
     public function resolveFrom(Record $record): string
     {

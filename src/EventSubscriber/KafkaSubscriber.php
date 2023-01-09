@@ -13,7 +13,8 @@ class KafkaSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private KafkaContext $context,
-    ) {}
+    ) {
+    }
 
     private static $subscribedEvents = [];
 

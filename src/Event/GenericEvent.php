@@ -15,7 +15,8 @@ final class GenericEvent extends Record implements Event
     public function __construct(
         private Record $record,
         private string $eventClass,
-    ) {}
+    ) {
+    }
 
     public function getKey(): ?string
     {

@@ -57,7 +57,9 @@ class Configuration implements ConfigurationInterface
                             ->info('Dirs/globs to search for matching events')
                             ->beforeNormalization()
                                 ->ifString()
-                                ->then(function ($v) { return [$v]; })
+                                ->then(function ($v) {
+                                    return [$v];
+                                })
                             ->end()
                             ->scalarPrototype()->end()
                             ->defaultValue(['src/Event'])

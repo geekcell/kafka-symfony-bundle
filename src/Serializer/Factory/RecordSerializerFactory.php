@@ -19,7 +19,8 @@ class RecordSerializerFactory implements SerializerFactory
         private AvroRecordSerializer $recordSerializer,
         private AvroUtil $avroUtil,
         private array $defaults = [],
-    ) {}
+    ) {
+    }
 
     public function create(): Serializer
     {

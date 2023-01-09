@@ -12,21 +12,21 @@ use GeekCell\KafkaBundle\Contracts\Serializable;
 
 use function Symfony\Component\String\u;
 
-abstract class Record implements  AvroSchemaAware, Keyable, Serializable
+abstract class Record implements AvroSchemaAware, Keyable, Serializable
 {
     public function getSchema(): Schema
-	{
-		$root = Schema::record()
-			->name($this->getNormalizedName());
+    {
+        $root = Schema::record()
+            ->name($this->getNormalizedName());
 
-		return $this->withFields($root);
-	}
+        return $this->withFields($root);
+    }
 
-	public function getNormalizedName(): string
+    public function getNormalizedName(): string
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
         return u($shortName)->camel()->title()->toString();
     }
 
-	abstract protected function withFields(RecordType $root): Schema;
+    abstract protected function withFields(RecordType $root): Schema;
 }

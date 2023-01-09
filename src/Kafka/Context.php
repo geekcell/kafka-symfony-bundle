@@ -15,7 +15,8 @@ class Context
         private readonly RdKafkaProducer $producer,
         private readonly SerializerFactoryProducer $factoryProducer,
         private readonly TopicNameResolver $topicNameResolver,
-    ) {}
+    ) {
+    }
 
     public function produce(Record $record): void
     {

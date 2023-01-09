@@ -15,7 +15,8 @@ abstract class Serializer implements SerializerInterface
     public function __construct(
         protected AvroUtil $avroUtil,
         protected array $defaults = [],
-    ) {}
+    ) {
+    }
 
     public function serialize(Record $object): string
     {
