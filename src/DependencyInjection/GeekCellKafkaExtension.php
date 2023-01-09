@@ -8,6 +8,7 @@ use GeekCell\KafkaBundle\Contracts\Event;
 use GeekCell\KafkaBundle\EventSubscriber\KafkaSubscriber;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
@@ -23,12 +24,34 @@ class GeekCellKafkaExtension extends Extension
         $configuration = new Configuration();
         $processed = $this->processConfiguration($configuration, $configs);
 
-        $this->registerKafkaEventsForSubscriber($processed, $container);
+        $this->registerAvroConfiguration(
+            $processed['avro'],
+            $container
+        );
+        $this->registerKafkaEventsForSubscriber(
+            $processed['events'],
+            $container
+        );
+        $this->registerKafkaConfiguration(
+            $processed['kafka'],
+            $container
+        );
+    }
+
+    private function registerAvroConfiguration(
+        array $avroConfig,
+        ContainerBuilder $container,
+    ): void
+    {
+        $container->setParameter(
+            'geek_cell_kafka.avro.schema_registry_url',
+            $avroConfig['schema_registry_url'],
+        );
     }
 
     private function registerKafkaEventsForSubscriber(
-        array $configs,
-        ContainerBuilder $container
+        array $eventConfig,
+        ContainerBuilder $container,
     ): void
     {
         $subscriberClass = KafkaSubscriber::class;
@@ -39,7 +62,7 @@ class GeekCellKafkaExtension extends Extension
                 $container->getParameter('kernel.project_dir'),
                 $resource,
             );
-        }, $configs['events']['resources']);
+        }, $eventConfig['lookup']);
 
         $finder = new Finder();
         $finder->in($globs)->name('*.php');
@@ -67,5 +90,73 @@ class GeekCellKafkaExtension extends Extension
                 $eventClass,
             );
         }
+    }
+
+    private function registerKafkaConfiguration(
+        array $kafkaConfig,
+        ContainerBuilder $container,
+    ): void
+    {
+        // RdKafka configuration
+        $rdKafkaConfDefinition = new Definition(\RdKafka\Conf::class);
+        $container->setDefinition(\RdKafka\Conf::class, $rdKafkaConfDefinition);
+
+        // ... global configuration
+        foreach ($kafkaConfig['global'] as $key => $value) {
+            $rdKafkaConfDefinition->addMethodCall(
+                'set',
+                [strval($key), strval($value)],
+            );
+        }
+
+        // ... topic configuration
+        foreach ($kafkaConfig['topic'] as $key => $value) {
+            $rdKafkaConfDefinition->addMethodCall(
+                'set',
+                ['topic.'.strval($key), strval($value)],
+            );
+        }
+
+        // See: https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings
+        if (function_exists('pcntl_sigprocmask')) {
+            pcntl_sigprocmask(SIG_BLOCK, array(SIGIO));
+            $rdKafkaConfDefinition->addMethodCall(
+                'set',
+                ['internal.termination.signal', SIGIO],
+            );
+        } else {
+            $rdKafkaConfDefinition->addMethodCall(
+                'set',
+                ['queue.buffering.max.ms', 1],
+            );
+        }
+
+        // RdKafka producer
+        $rdKafkaProducerDefinition = new Definition(
+            \RdKafka\Producer::class,
+            [$rdKafkaConfDefinition],
+        );
+        $rdKafkaProducerDefinition->addMethodCall(
+            'addBrokers',
+            [$kafkaConfig['brokers']],
+        );
+        $container->setDefinition(
+            \RdKafka\Producer::class,
+            $rdKafkaProducerDefinition,
+        );
+
+        // RdKafka consumer
+        $rdKafkaConsumerDefinition = new Definition(
+            \RdKafka\KafkaConsumer::class,
+            [$rdKafkaConfDefinition],
+        );
+        $rdKafkaConsumerDefinition->addMethodCall(
+            'addBrokers',
+            [$kafkaConfig['brokers']],
+        );
+        $container->setDefinition(
+            \RdKafka\KafkaConsumer::class,
+            $rdKafkaConsumerDefinition,
+        );
     }
 }

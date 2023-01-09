@@ -6,13 +6,13 @@ namespace GeekCell\KafkaBundle\EventSubscriber;
 
 use GeekCell\KafkaBundle\Contracts\Event;
 use GeekCell\KafkaBundle\Event\GenericEvent;
-use GeekCell\KafkaBundle\Serializer\GenericEventSerializer;
+use GeekCell\KafkaBundle\Kafka\Context as KafkaContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class KafkaSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private GenericEventSerializer $serializer,
+        private KafkaContext $context,
     ) {}
 
     private static $subscribedEvents = [];
@@ -29,9 +29,10 @@ class KafkaSubscriber implements EventSubscriberInterface
 
     public function handleEvent(Event $event): void
     {
-        $genericEvent = new GenericEvent($event->getSubject());
-        $serialized = $this->serializer->serialize($genericEvent);
+        if (!($event instanceof GenericEvent)) {
+            $event = new GenericEvent($event->getSubject());
+        }
 
-        // TODO: Produce and send message to Kafka
+        $this->context->produce($event);
     }
 }

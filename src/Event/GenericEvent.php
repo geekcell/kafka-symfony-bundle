@@ -5,28 +5,38 @@ declare(strict_types=1);
 namespace GeekCell\KafkaBundle\Event;
 
 use FlixTech\AvroSerializer\Objects\Schema;
+use FlixTech\AvroSerializer\Objects\Schema\RecordType;
 use GeekCell\KafkaBundle\Contracts\Event;
-use GeekCell\KafkaBundle\Contracts\Serializable;
 use GeekCell\KafkaBundle\Dto\GenericEventDto;
 use GeekCell\KafkaBundle\Record\Record;
 
 use function Symfony\Component\String\u;
 
-final class GenericEvent implements Serializable, Event
+final class GenericEvent extends Record implements Event
 {
     public function __construct(
         protected Record $record,
     ) {}
+
+    public function getKey(): ?string
+    {
+        return $this->getSubject()->getKey();
+    }
 
     public function getSubject(): Record
     {
         return $this->record;
     }
 
-    public function getDecoratedSchema(): Schema
+    public function getNormalizedName(): string
     {
-        return Schema::record()
-            ->name($this->getSchemaName())
+        $shortName = (new \ReflectionClass($this->record))->getShortName();
+        return 'event_' . u($shortName)->snake()->toString();
+    }
+
+    protected function withFields(RecordType $root): Schema
+    {
+        return $root
             ->field('eventClass', Schema::string())
             ->field('subjectClass', Schema::string())
             ->field('subject', $this->getSubject()->getSchema());
@@ -42,11 +52,5 @@ final class GenericEvent implements Serializable, Event
         $dto->subject = $subject;
 
         return $dto;
-    }
-
-    public function getSchemaName(): string
-    {
-        $shortName = (new \ReflectionClass(static::class))->getShortName();
-        return u($shortName)->snake()->toString();
     }
 }

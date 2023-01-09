@@ -8,5 +8,5 @@ use FlixTech\AvroSerializer\Objects\Schema;
 
 interface AvroSchemaAware
 {
-    public static function getSchema(): Schema;
+    public function getSchema(): Schema;
 }

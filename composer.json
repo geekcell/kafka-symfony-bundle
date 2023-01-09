@@ -8,6 +8,7 @@
             "email": "pascal.cremer@geekcell.io"
         }
     ],
+    "version": "0.1.0",
     "require": {
         "php": "^8.0",
         "ext-rdkafka": "*",
@@ -21,7 +22,8 @@
         "symfony/finder": "^6.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "kwn/php-rdkafka-stubs": "^2.2"
     },
     "autoload": {
         "psr-4": {

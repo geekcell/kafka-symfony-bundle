@@ -1,34 +1,63 @@
 services:
+    GeekCell\KafkaBundle\Kafka\Context:
+        arguments:
+            - '@RdKafka\Producer'
+            - '@GeekCell\KafkaBundle\Serializer\Factory\SerializerFactoryProducer'
+            - '@GeekCell\KafkaBundle\Support\Resolver\DefaultTopicNameResolver'
+        public: true
+
     GeekCell\KafkaBundle\EventSubscriber\KafkaSubscriber:
         arguments:
-            - '@GeekCell\KafkaBundle\Serializer\GenericEventSerializer'
+            - '@GeekCell\KafkaBundle\Kafka\Context'
         tags:
             - { name: kernel.event_subscriber }
+        public: false
 
     GeekCell\KafkaBundle\Serializer\GenericEventSerializer:
         factory:
             - '@GeekCell\KafkaBundle\Serializer\Factory\GenericEventSerializerFactory'
             - create
+        public: false
 
     GeekCell\KafkaBundle\Serializer\RecordSerializer:
         factory:
             - '@GeekCell\KafkaBundle\Serializer\Factory\RecordSerializerFactory'
             - create
+        public: false
 
     GeekCell\KafkaBundle\Serializer\Factory\GenericEventSerializerFactory:
         arguments:
             - '@FlixTech\AvroSerializer\Objects\RecordSerializer'
             - '@GeekCell\KafkaBundle\Serializer\RecordSerializer'
+            - '@GeekCell\KafkaBundle\Util\AvroUtil'
+        tags:
+            - { name: geek_cell_kafka.serializer_factory }
+        public: false
 
     GeekCell\KafkaBundle\Serializer\Factory\RecordSerializerFactory:
         arguments:
             - '@FlixTech\AvroSerializer\Objects\RecordSerializer'
+            - '@GeekCell\KafkaBundle\Util\AvroUtil'
+        tags:
+            - { name: geek_cell_kafka.serializer_factory }
+        public: false
+
+    GeekCell\KafkaBundle\Serializer\Factory\SerializerFactoryProducer:
+        public: false
+
+    GeekCell\KafkaBundle\Support\Resolver\DefaultTopicNameResolver:
+        public: false
+
+    GeekCell\KafkaBundle\Util\AvroUtil:
+        public: false
 
     FlixTech\AvroSerializer\Objects\RecordSerializer:
         factory:
             - '@FlixTech\AvroSerializer\Objects\DefaultRecordSerializerFactory'
             - get
         arguments:
-            - 'http://localhost:8085'
+            - '%geek_cell_kafka.avro.schema_registry_url%'
+        public: false
 
-    FlixTech\AvroSerializer\Objects\DefaultRecordSerializerFactory: ~
+    FlixTech\AvroSerializer\Objects\DefaultRecordSerializerFactory:
+        public: false

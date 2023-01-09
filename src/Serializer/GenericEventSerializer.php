@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace GeekCell\KafkaBundle\Serializer;
 
 use FlixTech\AvroSerializer\Integrations\Symfony\Serializer\AvroSerDeEncoder;
-use GeekCell\KafkaBundle\Contracts\Serializable;
 use GeekCell\KafkaBundle\Dto\GenericEventDto;
 use GeekCell\KafkaBundle\Event\GenericEvent;
 use GeekCell\KafkaBundle\Record\Record;
+use GeekCell\KafkaBundle\Util\AvroUtil;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;
 
 class GenericEventSerializer extends Serializer
@@ -16,9 +16,10 @@ class GenericEventSerializer extends Serializer
     public function __construct(
         private SymfonySerializer $innerSerializer,
         private RecordSerializer $recordSerializer,
+        private AvroUtil $avroUtil,
     ) {}
 
-    protected function doSerialize(Serializable $object): string
+    protected function doSerialize(Record $object): string
     {
         if (!$object instanceof GenericEvent) {
             throw new \LogicException(
@@ -29,8 +30,19 @@ class GenericEventSerializer extends Serializer
             );
         }
 
-        $encodingSubject = sprintf('%s-value', $object->getSchemaName());
-        $writersSchema = $object->getDecoratedSchema()->parse();
+        $schema = $object->getSchema();
+        if (!$this->avroUtil->hasName($object->getSchema())) {
+            throw new \LogicException(
+                sprintf(
+                    'Could not determine schema name for %s',
+                    $object::class,
+                )
+            );
+        }
+
+        $schemaName = $this->avroUtil->getName($schema);
+        $encodingSubject = sprintf('%s-value', $schemaName);
+        $writersSchema = $schema->parse();
 
         $context = [
             AvroSerDeEncoder::CONTEXT_ENCODE_WRITERS_SCHEMA => $writersSchema,
@@ -44,7 +56,7 @@ class GenericEventSerializer extends Serializer
         );
     }
 
-    protected function doDeserialize(string $data, string $type): Serializable
+    protected function doDeserialize(string $data, string $type): Record
     {
         /** @var KafkaDto $dto */
         $dto = $this->innerSerializer->deserialize(

@@ -7,12 +7,14 @@ namespace GeekCell\KafkaBundle\Serializer;
 use FlixTech\AvroSerializer\Integrations\Symfony\Serializer\AvroSerDeEncoder;
 use GeekCell\KafkaBundle\Contracts\Serializable;
 use GeekCell\KafkaBundle\Record\Record;
+use GeekCell\KafkaBundle\Util\AvroUtil;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;
 
 class RecordSerializer extends Serializer
 {
     public function __construct(
         private SymfonySerializer $innerSerializer,
+        private AvroUtil $avroUtil,
     ) {}
 
     protected function doSerialize(Serializable $object): string
@@ -27,8 +29,8 @@ class RecordSerializer extends Serializer
             );
         }
 
-        $schemaName = $this->determineSchemaName($object);
-        if (!$schemaName) {
+        $schema = $object->getSchema();
+        if (!$this->avroUtil->hasName($schema)) {
             throw new \LogicException(
                 sprintf(
                     'Could not determine schema name for %s',
@@ -37,8 +39,9 @@ class RecordSerializer extends Serializer
             );
         }
 
+        $schemaName = $this->avroUtil->getName($schema);
         $encodingSubject = sprintf('%s-value', $schemaName);
-        $writersSchema = $object::getSchema()->parse();
+        $writersSchema = $schema->parse();
 
         $context = [
             AvroSerDeEncoder::CONTEXT_ENCODE_WRITERS_SCHEMA => $writersSchema,
@@ -52,7 +55,7 @@ class RecordSerializer extends Serializer
         );
     }
 
-    public function doDeserialize(string $data, string $type): Serializable
+    public function doDeserialize(string $data, string $type): Record
     {
         return $this->innerSerializer->deserialize(
             $data,
@@ -64,17 +67,5 @@ class RecordSerializer extends Serializer
     protected function supports(string $type): bool
     {
         return is_subclass_of($type, Record::class);
-    }
-
-    protected function determineSchemaName(Record $record): ?string
-    {
-        $schema = $record::getSchema();
-        $avroJson = $schema->serialize();
-        $type = \AvroUtil::array_value($avroJson, \AvroSchema::TYPE_ATTR);
-        if (!\AvroSchema::is_named_type($type)) {
-            return null;
-        }
-
-        return \AvroUtil::array_value($avroJson, \AvroSchema::NAME_ATTR);
     }
 }

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace GeekCell\KafkaBundle\Serializer;
 
-use GeekCell\KafkaBundle\Contracts\Serializable;
 use GeekCell\KafkaBundle\Contracts\Serializer as SerializerInterface;
+use GeekCell\KafkaBundle\Record\Record;
 
 abstract class Serializer implements SerializerInterface
 {
-    public function serialize(Serializable $object): string
+    public function serialize(Record $object): string
     {
         if (!$this->supports($object::class)) {
             throw new \InvalidArgumentException(
@@ -24,7 +24,7 @@ abstract class Serializer implements SerializerInterface
         return $this->doSerialize($object);
     }
 
-    public function deserialize(string $data, string $type): Serializable
+    public function deserialize(string $data, string $type): Record
     {
         if (!$this->supports($type)) {
             throw new \InvalidArgumentException(
@@ -39,12 +39,12 @@ abstract class Serializer implements SerializerInterface
         return $this->doDeserialize($data, $type);
     }
 
-    abstract protected function doSerialize(Serializable $object): string;
+    abstract protected function doSerialize(Record $object): string;
 
     abstract protected function doDeserialize(
         string $data,
         string $type
-    ): Serializable;
+    ): Record;
 
     abstract protected function supports(string $type): bool;
 }

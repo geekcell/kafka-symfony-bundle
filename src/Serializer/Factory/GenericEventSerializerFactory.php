@@ -10,6 +10,7 @@ use GeekCell\KafkaBundle\Contracts\Serializer;
 use GeekCell\KafkaBundle\Contracts\SerializerFactory;
 use GeekCell\KafkaBundle\Serializer\GenericEventSerializer;
 use GeekCell\KafkaBundle\Serializer\RecordSerializer;
+use GeekCell\KafkaBundle\Util\AvroUtil;
 use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;
 
@@ -18,6 +19,7 @@ class GenericEventSerializerFactory implements SerializerFactory
     public function __construct(
         private AvroRecordSerializer $avroRecordSerializer,
         private RecordSerializer $recordSerializer,
+        private AvroUtil $avroUtil,
     ) {}
 
     public function create(): Serializer
@@ -28,7 +30,8 @@ class GenericEventSerializerFactory implements SerializerFactory
 
         return new GenericEventSerializer(
             $innerSerializer,
-            $this->recordSerializer
+            $this->recordSerializer,
+            $this->avroUtil,
         );
     }
 }
