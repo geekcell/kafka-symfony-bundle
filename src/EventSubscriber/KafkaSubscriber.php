@@ -24,10 +24,10 @@ class KafkaSubscriber implements EventSubscriberInterface
 
     public static function addSubscribedEvent(string $eventClass): void
     {
-        self::$subscribedEvents[$eventClass] = 'handleEvent';
+        self::$subscribedEvents[$eventClass] = 'onEvent';
     }
 
-    public function handleEvent(Event $event): void
+    public function onEvent(Event $event): void
     {
         if (!($event instanceof GenericEvent)) {
             $event = new GenericEvent($event->getSubject(), $event::class);
