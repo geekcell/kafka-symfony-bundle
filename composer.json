@@ -8,7 +8,7 @@
             "email": "pascal.cremer@geekcell.io"
         }
     ],
-    "version": "0.1.0",
+    "version": "1.0.0",
     "require": {
         "php": "^8.0",
         "ext-rdkafka": "*",
