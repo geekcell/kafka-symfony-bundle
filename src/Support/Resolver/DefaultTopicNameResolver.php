@@ -7,6 +7,8 @@ namespace GeekCell\KafkaBundle\Support\Resolver;
 use GeekCell\KafkaBundle\Contracts\TopicNameResolver;
 use GeekCell\KafkaBundle\Record\Record;
 
+use function Symfony\Component\String\u;
+
 class DefaultTopicNameResolver implements TopicNameResolver
 {
     public function __construct(
@@ -17,6 +19,11 @@ class DefaultTopicNameResolver implements TopicNameResolver
     public function resolveFrom(Record $record): string
     {
         $normalizedName = $record->getNormalizedName();
-        return $this->prefix . $normalizedName . $this->suffix;
+        return sprintf(
+            '%s%s%s',
+            $this->prefix,
+            u($normalizedName)->snake()->toString(),
+            $this->suffix
+        );
     }
 }

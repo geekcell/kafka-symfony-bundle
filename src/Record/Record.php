@@ -25,7 +25,7 @@ abstract class Record implements  AvroSchemaAware, Keyable, Serializable
 	public function getNormalizedName(): string
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
-        return u($shortName)->snake()->toString();
+        return u($shortName)->camel()->title()->toString();
     }
 
 	abstract protected function withFields(RecordType $root): Schema;

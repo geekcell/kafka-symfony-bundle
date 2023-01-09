@@ -10,8 +10,6 @@ use GeekCell\KafkaBundle\Contracts\Event;
 use GeekCell\KafkaBundle\Dto\GenericEventDto;
 use GeekCell\KafkaBundle\Record\Record;
 
-use function Symfony\Component\String\u;
-
 final class GenericEvent extends Record implements Event
 {
     public function __construct(
@@ -31,8 +29,7 @@ final class GenericEvent extends Record implements Event
 
     public function getNormalizedName(): string
     {
-        $shortName = (new \ReflectionClass($this->record))->getShortName();
-        return 'event_' . u($shortName)->snake()->toString();
+        return 'Event' . $this->record->getNormalizedName();
     }
 
     protected function withFields(RecordType $root): Schema
