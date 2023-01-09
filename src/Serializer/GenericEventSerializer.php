@@ -68,7 +68,7 @@ class GenericEventSerializer extends Serializer
 
     protected function doDeserialize(string $data, string $type): Record
     {
-        /** @var KafkaDto $dto */
+        /** @var GenericEventDto $dto */
         $dto = $this->innerSerializer->deserialize(
             $data,
             GenericEventDto::class,
@@ -91,7 +91,7 @@ class GenericEventSerializer extends Serializer
         $subject = $this->recordSerializer
             ->deserialize($dto->subject, $dto->subjectClass);
 
-        return new GenericEvent($subject);
+        return new GenericEvent($subject, $dto->eventClass);
     }
 
     protected function supports(string $type): bool

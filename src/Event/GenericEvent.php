@@ -15,7 +15,8 @@ use function Symfony\Component\String\u;
 final class GenericEvent extends Record implements Event
 {
     public function __construct(
-        protected Record $record,
+        private Record $record,
+        private string $eventClass,
     ) {}
 
     public function getKey(): ?string
@@ -47,7 +48,7 @@ final class GenericEvent extends Record implements Event
         $subject = $this->getSubject();
 
         $dto = new GenericEventDto();
-        $dto->eventClass = static::class;
+        $dto->eventClass = $this->eventClass;
         $dto->subjectClass = $subject::class;
         $dto->subject = $subject;
 
