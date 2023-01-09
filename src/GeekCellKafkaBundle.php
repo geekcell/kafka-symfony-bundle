@@ -8,9 +8,9 @@ use GeekCell\KafkaBundle\DependencyInjection\CompilerPass\AddFactoriesCompilerPa
 use GeekCell\KafkaBundle\DependencyInjection\GeekCellKafkaExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
-use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class GeekCellKafkaBundle extends AbstractBundle
+class GeekCellKafkaBundle extends Bundle
 {
     public function getContainerExtension(): ?ExtensionInterface
     {
