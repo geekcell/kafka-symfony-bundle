@@ -106,6 +106,12 @@ class GeekCellKafkaExtension extends Extension
         $rdKafkaConfDefinition = new Definition(\RdKafka\Conf::class);
         $container->setDefinition(\RdKafka\Conf::class, $rdKafkaConfDefinition);
 
+        // ... default configuration
+        $rdKafkaConfDefinition->addMethodCall(
+            'set',
+            ['bootstrap.servers', $kafkaConfig['brokers']]
+        );
+
         // ... global configuration
         foreach ($kafkaConfig['global'] as $key => $value) {
             $rdKafkaConfDefinition->addMethodCall(
