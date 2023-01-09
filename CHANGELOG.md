@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/geekcell/kafka-symfony-bundle/compare/v1.0.0...v1.0.1) (2023-01-09)
+
+
+### Bug Fixes
+
+* **reqs:** Support older versions of used Symfony components. ([0d1852a](https://github.com/geekcell/kafka-symfony-bundle/commit/0d1852a6c56fd367d298c4b4cf148a61eee9671b))
+
 ## 1.0.0 (2023-01-09)
 
 
